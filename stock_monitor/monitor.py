@@ -71,6 +71,15 @@ PRIORITY_LABEL = {
 # ──────────────────────────────────────────
 
 def load_config() -> dict:
+    # GitHub Actions では環境変数から読む
+    if os.environ.get("GMAIL_FROM"):
+        to_raw = os.environ.get("GMAIL_TO", "")
+        to_addr = [a.strip() for a in to_raw.split(",")] if "," in to_raw else to_raw
+        return {
+            "from_address": os.environ["GMAIL_FROM"],
+            "to_address":   to_addr,
+            "app_password": os.environ["GMAIL_APP_PASSWORD"],
+        }
     if not os.path.exists(CONFIG_FILE):
         raise FileNotFoundError(
             f"config.json が見つかりません。\n"
