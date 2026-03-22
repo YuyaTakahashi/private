@@ -1,5 +1,5 @@
 {
   "from_address": "u8.mobile@gmail.com",
-  "to_address":   "u8.mobile@gmail.com",
+  "to_address":   ["u8.mobile@gmail.com", "akaneohmoto@gmail.com"],
   "app_password":  "xxxx xxxx xxxx xxxx"
 }
