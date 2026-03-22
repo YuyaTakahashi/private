@@ -98,6 +98,9 @@ def load_config() -> dict:
 def fetch(ticker: str) -> pd.DataFrame:
     df = yf.download(ticker, period="6mo", interval="1d",
                      auto_adjust=True, progress=False)
+    # 新しいyfinanceはMultiIndexカラムを返す場合があるのでフラット化
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.get_level_values(0)
     df = df.dropna()
     if len(df) < MA_LONG + 2:
         raise ValueError(f"データ不足: {len(df)} 行")
