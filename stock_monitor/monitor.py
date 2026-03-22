@@ -266,13 +266,27 @@ def check_ticker(ticker: str, prev_state: dict, alerts: list) -> dict:
     }
 
 
-def run_test_line(config: dict):
-    """GitHub Actions の手動実行でLINEテスト送信"""
-    sample = [
-        ("NVDA", PRIORITY_SEVERE, PRIORITY_MILD,  {"close": 172.70, "change_pct": +3.21}),
+def run_test_notify(config: dict):
+    """メール＋LINE のテスト送信（重複チェックなし）"""
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+    sample_alerts = [
+        ("NVDA", PRIORITY_SEVERE, PRIORITY_MILD,  {"close": 172.70, "change_pct": +3.21, "is_green": True,  "ma_short": 179.36, "ma_mid": 183.83, "ma_long": 184.19}),
+        ("TSLA", PRIORITY_MILD,   PRIORITY_NORMAL, {"close": 370.00, "change_pct": +2.10, "is_green": True,  "ma_short": 390.00, "ma_mid": 380.00, "ma_long": 370.00}),
     ]
+
+    # メール
+    mail_lines = [f"【テスト】日次レポート  {now_str}", "（これはテスト送信です）", ""]
+    mail_lines.append("── 本日の状態変化（サンプル）──")
+    for ticker, p_from, p_to, s in sample_alerts:
+        mail_lines.append(f"{PRIORITY_LABEL[p_from]} → {PRIORITY_LABEL[p_to]}")
+        mail_lines.append(format_row(ticker, s))
+        mail_lines.append("")
+    send_email(f"【株アラート】テスト送信  {now_str}", "\n".join(mail_lines), config)
+    log("メール テスト送信完了")
+
+    # LINE
     line_lines = ["【株アラート】テスト送信（サンプル）"]
-    for ticker, p_from, p_to, s in sample:
+    for ticker, p_from, p_to, s in sample_alerts:
         line_lines.append(
             f"\n{ticker}  ${s['close']} ({s['change_pct']:+.2f}%)"
             f"\n{PRIORITY_LABEL[p_from]} → {PRIORITY_LABEL[p_to]}"
@@ -284,8 +298,8 @@ def run_test_line(config: dict):
 def run():
     config = load_config()
 
-    if os.environ.get("TEST_LINE", "").lower() == "true":
-        run_test_line(config)
+    if os.environ.get("TEST_NOTIFY", "").lower() == "true":
+        run_test_notify(config)
         return
 
 

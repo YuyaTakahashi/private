@@ -8,8 +8,8 @@ on:
     - cron: "30 21 * * 1-5"
   workflow_dispatch:
     inputs:
-      test_line:
-        description: "LINEテスト送信（サンプル状態変化を送信）"
+      test_notify:
+        description: "テスト送信（メール＋LINE、重複チェックなし）"
         type: boolean
         default: false
 
@@ -38,7 +38,7 @@ jobs:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           LINE_TOKEN:         ${{ secrets.LINE_TOKEN }}
           LINE_USER_ID:       ${{ secrets.LINE_USER_ID }}
-          TEST_LINE:          ${{ inputs.test_line }}
+          TEST_NOTIFY:        ${{ inputs.test_notify }}
         run: python stock_monitor/monitor.py
 
       - name: Commit state
