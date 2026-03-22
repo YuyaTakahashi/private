@@ -257,10 +257,12 @@ def check_ticker(ticker: str, prev_state: dict, alerts: list) -> dict:
         log(f"  → 状態変化なし（{priority_label}）")
 
     return {
-        "date":     status["date"],
-        "aligned":  status["aligned"],
-        "priority": status["priority"],
-        "close":    status["close"],
+        "date":       status["date"],
+        "aligned":    status["aligned"],
+        "priority":   status["priority"],
+        "close":      status["close"],
+        "change_pct": status["change_pct"],
+        "is_green":   status["is_green"],
     }
 
 
@@ -292,34 +294,51 @@ def run():
     state["last_run_date"] = latest_trading_date
     save_state(state)
 
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    # ── メール: 毎日送信（全銘柄サマリー + 状態変化）──
+    groups = {p: [] for p in (PRIORITY_NORMAL, PRIORITY_MILD, PRIORITY_SEVERE)}
+    for ticker in TICKERS:
+        s = state.get(ticker)
+        if s:
+            groups[s["priority"]].append((ticker, s))
+
+    mail_lines = [f"日次レポート  {now_str}", ""]
+    for pri, label in PRIORITY_LABEL.items():
+        mail_lines.append(f"{label}  ({len(groups[pri])} 銘柄)")
+        for ticker, s in groups[pri]:
+            candle = "陽線" if s.get("is_green") else "陰線"
+            mail_lines.append(
+                f"  {ticker:<8}  ${s['close']:>8.2f}  {candle}"
+            )
+        mail_lines.append("")
+
     if alerts:
-        # 重度 → 軽度 → 回復 の順に並べる
         alerts.sort(key=lambda a: -a[2])
-
-        subject = f"【株アラート】{len(alerts)} 件の状態変化"
-        lines   = [f"チェック日時: {datetime.now().strftime('%Y-%m-%d %H:%M')}", ""]
-
-        line_lines = []  # LINE用（簡潔に）
-
+        mail_lines.append("── 本日の状態変化 ──")
         for ticker, p_from, p_to, s in alerts:
-            label_from = PRIORITY_LABEL[p_from]
-            label_to   = PRIORITY_LABEL[p_to]
-            lines.append(f"{label_from} → {label_to}")
-            lines.append(format_row(ticker, s))
-            lines.append("")
+            mail_lines.append(f"{PRIORITY_LABEL[p_from]} → {PRIORITY_LABEL[p_to]}")
+            mail_lines.append(format_row(ticker, s))
+            mail_lines.append("")
+        subject = f"【株アラート】{len(alerts)}件の状態変化あり  {now_str}"
+    else:
+        subject = f"【株モニター】日次レポート  {now_str}"
+
+    send_email(subject, "\n".join(mail_lines), config)
+    log(f"メール送信: {subject}")
+
+    # ── LINE: 状態変化時のみ ──
+    if alerts:
+        line_lines = [f"【株アラート】{len(alerts)}件の状態変化"]
+        for ticker, p_from, p_to, s in alerts:
             line_lines.append(
                 f"\n{ticker}  ${s['close']} ({s['change_pct']:+.2f}%)"
-                f"\n{label_from} → {label_to}"
+                f"\n{PRIORITY_LABEL[p_from]} → {PRIORITY_LABEL[p_to]}"
             )
-
-        send_email(subject, "\n".join(lines), config)
-        log(f"メール送信: {subject}")
-
-        line_msg = f"\n【株アラート】{len(alerts)}件の状態変化" + "".join(line_lines)
-        send_line(line_msg, config)
+        send_line("\n".join(line_lines), config)
         log("LINE通知送信")
     else:
-        log("状態変化なし → メール送信スキップ")
+        log("状態変化なし → LINE送信スキップ")
 
     log("チェック完了")
     log("=" * 60)
