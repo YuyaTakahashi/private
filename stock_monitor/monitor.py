@@ -266,8 +266,28 @@ def check_ticker(ticker: str, prev_state: dict, alerts: list) -> dict:
     }
 
 
+def run_test_line(config: dict):
+    """GitHub Actions の手動実行でLINEテスト送信"""
+    sample = [
+        ("NVDA", PRIORITY_SEVERE, PRIORITY_MILD,  {"close": 172.70, "change_pct": +3.21}),
+    ]
+    line_lines = ["【株アラート】テスト送信（サンプル）"]
+    for ticker, p_from, p_to, s in sample:
+        line_lines.append(
+            f"\n{ticker}  ${s['close']} ({s['change_pct']:+.2f}%)"
+            f"\n{PRIORITY_LABEL[p_from]} → {PRIORITY_LABEL[p_to]}"
+        )
+    send_line("\n".join(line_lines), config)
+    log("LINE テスト送信完了")
+
+
 def run():
     config = load_config()
+
+    if os.environ.get("TEST_LINE", "").lower() == "true":
+        run_test_line(config)
+        return
+
 
     # 同日の2重実行を防ぐ（夏時間・冬時間の2スケジュール対策）
     state = load_state()
