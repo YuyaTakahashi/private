@@ -26,9 +26,10 @@ jobs:
 
       - name: Run monitor
         env:
-          GMAIL_FROM:        ${{ secrets.GMAIL_FROM }}
-          GMAIL_TO:          ${{ secrets.GMAIL_TO }}
+          GMAIL_FROM:         ${{ secrets.GMAIL_FROM }}
+          GMAIL_TO:           ${{ secrets.GMAIL_TO }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          LINE_NOTIFY_TOKEN:  ${{ secrets.LINE_NOTIFY_TOKEN }}
         run: python stock_monitor/monitor.py
 
       - name: Commit state

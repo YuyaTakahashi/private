@@ -9,6 +9,8 @@
 import json
 import os
 import smtplib
+import urllib.request
+import urllib.parse
 from datetime import datetime
 from email.mime.text import MIMEText
 
@@ -180,6 +182,21 @@ def send_email(subject: str, body: str, config: dict):
 
 
 # ──────────────────────────────────────────
+# LINE Notify
+# ──────────────────────────────────────────
+
+def send_line(message: str, config: dict):
+    token = config.get("line_notify_token") or os.environ.get("LINE_NOTIFY_TOKEN")
+    if not token:
+        return
+    data    = urllib.parse.urlencode({"message": message}).encode()
+    headers = {"Authorization": f"Bearer {token}"}
+    req     = urllib.request.Request("https://notify-api.line.me/api/notify",
+                                     data=data, headers=headers, method="POST")
+    urllib.request.urlopen(req)
+
+
+# ──────────────────────────────────────────
 # ログ
 # ──────────────────────────────────────────
 
@@ -272,15 +289,25 @@ def run():
         subject = f"【株アラート】{len(alerts)} 件の状態変化"
         lines   = [f"チェック日時: {datetime.now().strftime('%Y-%m-%d %H:%M')}", ""]
 
+        line_lines = []  # LINE用（簡潔に）
+
         for ticker, p_from, p_to, s in alerts:
             label_from = PRIORITY_LABEL[p_from]
             label_to   = PRIORITY_LABEL[p_to]
             lines.append(f"{label_from} → {label_to}")
             lines.append(format_row(ticker, s))
             lines.append("")
+            line_lines.append(
+                f"\n{ticker}  ${s['close']} ({s['change_pct']:+.2f}%)"
+                f"\n{label_from} → {label_to}"
+            )
 
         send_email(subject, "\n".join(lines), config)
         log(f"メール送信: {subject}")
+
+        line_msg = f"\n【株アラート】{len(alerts)}件の状態変化" + "".join(line_lines)
+        send_line(line_msg, config)
+        log("LINE通知送信")
     else:
         log("状態変化なし → メール送信スキップ")
 
