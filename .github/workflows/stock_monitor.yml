@@ -2,8 +2,10 @@ name: Stock Monitor
 
 on:
   schedule:
-    # 米国市場クローズ後（22:00 UTC = 翌朝7:00 JST）月〜金
-    - cron: "0 22 * * 1-5"
+    # 夏時間 (EDT): 20:30 UTC = 5:30 AM JST（市場クローズ30分後）
+    - cron: "30 20 * * 1-5"
+    # 冬時間 (EST): 21:30 UTC = 6:30 AM JST（市場クローズ30分後）
+    - cron: "30 21 * * 1-5"
   workflow_dispatch:  # 手動実行も可能
 
 jobs:

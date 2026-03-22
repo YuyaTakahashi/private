@@ -240,6 +240,16 @@ def check_ticker(ticker: str, prev_state: dict, alerts: list) -> dict:
 def run():
     config = load_config()
 
+    # 同日の2重実行を防ぐ（夏時間・冬時間の2スケジュール対策）
+    state = load_state()
+    latest_df = yf.download(TICKERS[0], period="5d", interval="1d",
+                            auto_adjust=True, progress=False).dropna()
+    latest_trading_date = latest_df.index[-1].strftime("%Y-%m-%d")
+
+    if state.get("last_run_date") == latest_trading_date:
+        log(f"本日分 ({latest_trading_date}) は処理済み → スキップ")
+        return
+
     log("=" * 60)
     log(f"チェック開始  対象: {len(TICKERS)} 銘柄")
 
@@ -252,6 +262,7 @@ def run():
         except Exception as e:
             log(f"ERROR {ticker}: {e}")
 
+    state["last_run_date"] = latest_trading_date
     save_state(state)
 
     if alerts:
