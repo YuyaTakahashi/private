@@ -267,24 +267,33 @@ def check_ticker(ticker: str, prev_state: dict, alerts: list) -> dict:
 
 
 def run_test_notify(config: dict):
-    """メール＋LINE のテスト送信（重複チェックなし）"""
+    """メール（全銘柄実データ）＋LINE（サンプル状態変化）のテスト送信"""
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
-    sample_alerts = [
-        ("NVDA", PRIORITY_SEVERE, PRIORITY_MILD,  {"close": 172.70, "change_pct": +3.21, "is_green": True,  "ma_short": 179.36, "ma_mid": 183.83, "ma_long": 184.19}),
-        ("TSLA", PRIORITY_MILD,   PRIORITY_NORMAL, {"close": 370.00, "change_pct": +2.10, "is_green": True,  "ma_short": 390.00, "ma_mid": 380.00, "ma_long": 370.00}),
-    ]
 
-    # メール
+    # メール: 全銘柄を実際に取得して送信
+    groups = {p: [] for p in (PRIORITY_NORMAL, PRIORITY_MILD, PRIORITY_SEVERE)}
+    for ticker in TICKERS:
+        try:
+            df = fetch(ticker)
+            s  = calc_status(df)
+            groups[s["priority"]].append((ticker, s))
+        except Exception as e:
+            log(f"ERROR {ticker}: {e}")
+
     mail_lines = [f"【テスト】日次レポート  {now_str}", "（これはテスト送信です）", ""]
-    mail_lines.append("── 本日の状態変化（サンプル）──")
-    for ticker, p_from, p_to, s in sample_alerts:
-        mail_lines.append(f"{PRIORITY_LABEL[p_from]} → {PRIORITY_LABEL[p_to]}")
-        mail_lines.append(format_row(ticker, s))
+    for pri, label in PRIORITY_LABEL.items():
+        mail_lines.append(f"{label}  ({len(groups[pri])} 銘柄)")
+        for ticker, s in groups[pri]:
+            mail_lines.append(format_row(ticker, s))
         mail_lines.append("")
-    send_email(f"【株アラート】テスト送信  {now_str}", "\n".join(mail_lines), config)
+    send_email(f"【株モニター】テスト送信  {now_str}", "\n".join(mail_lines), config)
     log("メール テスト送信完了")
 
-    # LINE
+    # LINE: サンプル状態変化
+    sample_alerts = [
+        ("NVDA", PRIORITY_SEVERE, PRIORITY_MILD,  {"close": 172.70, "change_pct": +3.21}),
+        ("TSLA", PRIORITY_MILD,   PRIORITY_NORMAL, {"close": 370.00, "change_pct": +2.10}),
+    ]
     line_lines = ["【株アラート】テスト送信（サンプル）"]
     for ticker, p_from, p_to, s in sample_alerts:
         line_lines.append(
