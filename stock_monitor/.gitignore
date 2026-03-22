@@ -1,5 +1,6 @@
 state.json
 monitor.log
 cron.log
+config.json
 __pycache__/
 *.pyc
