@@ -2,5 +2,6 @@
   "from_address":      "u8.mobile@gmail.com",
   "to_address":        ["u8.mobile@gmail.com", "akaneohmoto@gmail.com"],
   "app_password":      "xxxx xxxx xxxx xxxx",
-  "line_notify_token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  "line_token":    "your_channel_access_token",
+  "line_user_id":  "Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 }

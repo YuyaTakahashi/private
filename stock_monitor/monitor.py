@@ -186,13 +186,20 @@ def send_email(subject: str, body: str, config: dict):
 # ──────────────────────────────────────────
 
 def send_line(message: str, config: dict):
-    token = config.get("line_notify_token") or os.environ.get("LINE_NOTIFY_TOKEN")
-    if not token:
+    token   = config.get("line_token") or os.environ.get("LINE_TOKEN")
+    user_id = config.get("line_user_id") or os.environ.get("LINE_USER_ID")
+    if not token or not user_id:
         return
-    data    = urllib.parse.urlencode({"message": message}).encode()
-    headers = {"Authorization": f"Bearer {token}"}
-    req     = urllib.request.Request("https://notify-api.line.me/api/notify",
-                                     data=data, headers=headers, method="POST")
+    body    = json.dumps({
+        "to": user_id,
+        "messages": [{"type": "text", "text": message}]
+    }).encode()
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type":  "application/json",
+    }
+    req = urllib.request.Request("https://api.line.me/v2/bot/message/push",
+                                 data=body, headers=headers, method="POST")
     urllib.request.urlopen(req)
 
 
