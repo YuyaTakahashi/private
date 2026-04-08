@@ -1,195 +1,195 @@
 {
   "TSLA": {
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "aligned": false,
     "priority": 2,
-    "close": 346.65,
-    "change_pct": -1.75,
-    "is_green": true
-  },
-  "last_run_date": "2026-04-07",
-  "2760.T": {
-    "date": "2026-04-07",
-    "aligned": false,
-    "priority": 2,
-    "close": 3090.0,
-    "change_pct": 0.82,
+    "close": 343.25,
+    "change_pct": -0.98,
     "is_green": false
   },
+  "last_run_date": "2026-04-08",
+  "2760.T": {
+    "date": "2026-04-08",
+    "aligned": false,
+    "priority": 2,
+    "close": 3245.0,
+    "change_pct": 5.02,
+    "is_green": true
+  },
   "ADI": {
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "aligned": true,
     "priority": 0,
-    "close": 327.41,
-    "change_pct": 0.02,
+    "close": 346.21,
+    "change_pct": 5.74,
     "is_green": true
   },
   "AMD": {
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "aligned": false,
     "priority": 2,
-    "close": 221.53,
-    "change_pct": 0.61,
-    "is_green": true
+    "close": 231.82,
+    "change_pct": 4.64,
+    "is_green": false
   },
   "AMZN": {
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "aligned": false,
     "priority": 2,
-    "close": 213.77,
-    "change_pct": 0.46,
-    "is_green": true
+    "close": 221.25,
+    "change_pct": 3.5,
+    "is_green": false
   },
   "ARM": {
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "aligned": true,
     "priority": 0,
-    "close": 143.86,
-    "change_pct": -3.3,
-    "is_green": true
+    "close": 148.91,
+    "change_pct": 3.51,
+    "is_green": false
   },
   "AVGO": {
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "aligned": false,
     "priority": 2,
-    "close": 333.97,
-    "change_pct": 6.21,
-    "is_green": true
+    "close": 350.63,
+    "change_pct": 4.99,
+    "is_green": false
   },
   "CEG": {
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "aligned": false,
     "priority": 2,
-    "close": 272.58,
-    "change_pct": -0.94,
-    "is_green": false
+    "close": 284.27,
+    "change_pct": 4.29,
+    "is_green": true
   },
   "DIOD": {
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "aligned": true,
     "priority": 0,
-    "close": 73.28,
-    "change_pct": -0.46,
-    "is_green": false
+    "close": 78.6,
+    "change_pct": 7.26,
+    "is_green": true
   },
   "GOOG": {
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "aligned": false,
     "priority": 2,
-    "close": 303.93,
-    "change_pct": 2.11,
-    "is_green": true
-  },
-  "GOOGL": {
-    "date": "2026-04-07",
-    "aligned": false,
-    "priority": 2,
-    "close": 305.46,
-    "change_pct": 1.82,
-    "is_green": true
-  },
-  "HON": {
-    "date": "2026-04-07",
-    "aligned": false,
-    "priority": 1,
-    "close": 223.84,
-    "change_pct": -1.91,
+    "close": 314.74,
+    "change_pct": 3.56,
     "is_green": false
   },
-  "IBM": {
-    "date": "2026-04-07",
+  "GOOGL": {
+    "date": "2026-04-08",
     "aligned": false,
     "priority": 2,
-    "close": 245.07,
-    "change_pct": -0.68,
+    "close": 317.32,
+    "change_pct": 3.88,
+    "is_green": false
+  },
+  "HON": {
+    "date": "2026-04-08",
+    "aligned": false,
+    "priority": 1,
+    "close": 232.47,
+    "change_pct": 3.86,
+    "is_green": true
+  },
+  "IBM": {
+    "date": "2026-04-08",
+    "aligned": false,
+    "priority": 2,
+    "close": 241.74,
+    "change_pct": -1.36,
     "is_green": false
   },
   "IRDM": {
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "aligned": true,
     "priority": 0,
-    "close": 33.43,
-    "change_pct": 1.95,
-    "is_green": true
-  },
-  "LMT": {
-    "date": "2026-04-07",
-    "aligned": false,
-    "priority": 1,
-    "close": 627.7,
-    "change_pct": -1.6,
+    "close": 34.62,
+    "change_pct": 3.56,
     "is_green": false
   },
-  "MSFT": {
-    "date": "2026-04-07",
-    "aligned": false,
-    "priority": 2,
-    "close": 372.29,
-    "change_pct": -0.16,
-    "is_green": true
-  },
-  "MU": {
-    "date": "2026-04-07",
+  "LMT": {
+    "date": "2026-04-08",
     "aligned": false,
     "priority": 1,
-    "close": 377.58,
-    "change_pct": -0.05,
+    "close": 628.5,
+    "change_pct": 0.13,
     "is_green": true
+  },
+  "MSFT": {
+    "date": "2026-04-08",
+    "aligned": false,
+    "priority": 2,
+    "close": 374.33,
+    "change_pct": 0.55,
+    "is_green": false
+  },
+  "MU": {
+    "date": "2026-04-08",
+    "aligned": false,
+    "priority": 1,
+    "close": 406.73,
+    "change_pct": 7.72,
+    "is_green": false
   },
   "NVDA": {
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "aligned": false,
     "priority": 2,
-    "close": 178.1,
-    "change_pct": 0.26,
-    "is_green": true
+    "close": 182.08,
+    "change_pct": 2.23,
+    "is_green": false
   },
   "PLTR": {
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "aligned": false,
     "priority": 2,
-    "close": 150.07,
-    "change_pct": 1.45,
-    "is_green": true
+    "close": 140.76,
+    "change_pct": -6.2,
+    "is_green": false
   },
   "QCOM": {
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "aligned": false,
     "priority": 2,
-    "close": 124.07,
-    "change_pct": -1.32,
+    "close": 127.51,
+    "change_pct": 2.77,
     "is_green": false
   },
   "RTX": {
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "aligned": false,
     "priority": 1,
-    "close": 197.92,
-    "change_pct": -0.25,
-    "is_green": true
-  },
-  "SMCI": {
-    "date": "2026-04-07",
-    "aligned": false,
-    "priority": 2,
-    "close": 22.67,
+    "close": 203.48,
     "change_pct": 2.81,
     "is_green": true
   },
-  "SSYS": {
-    "date": "2026-04-07",
+  "SMCI": {
+    "date": "2026-04-08",
     "aligned": false,
     "priority": 2,
-    "close": 8.03,
-    "change_pct": 0.0,
-    "is_green": true
+    "close": 23.37,
+    "change_pct": 3.09,
+    "is_green": false
+  },
+  "SSYS": {
+    "date": "2026-04-08",
+    "aligned": false,
+    "priority": 2,
+    "close": 8.29,
+    "change_pct": 3.24,
+    "is_green": false
   },
   "TSM": {
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "aligned": true,
     "priority": 0,
-    "close": 345.32,
-    "change_pct": 1.04,
-    "is_green": true
+    "close": 365.9,
+    "change_pct": 5.96,
+    "is_green": false
   }
 }
