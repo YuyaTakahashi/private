@@ -2,7 +2,7 @@
 """SMBC FX Market Report - 自信指数モニター（GitHub Actions版）
 CI = ブル% - ベア%。|CI| >= 35% → エントリー通知、< 35% → 日次サマリー通知
 """
-import json, urllib.request, os, sys, datetime, tempfile, base64, re
+import json, urllib.request, os, sys, datetime, tempfile, re
 
 PDF_URL = "https://www.smbc.co.jp/market/pdf/comment.pdf"
 THRESHOLD = 35
@@ -26,35 +26,21 @@ def pdf_page_to_png(pdf_path: str, page_num: int, out_png: str, dpi: int = 200) 
 
 
 def extract_bull_bear(png_path: str) -> dict:
-    import anthropic
-    with open(png_path, "rb") as f:
-        img_data = base64.b64encode(f.read()).decode()
+    import google.generativeai as genai
+    from PIL import Image
 
-    client = anthropic.Anthropic()
-    msg = client.messages.create(
-        model="claude-haiku-4-5-20251001",
-        max_tokens=256,
-        messages=[{
-            "role": "user",
-            "content": [
-                {
-                    "type": "image",
-                    "source": {"type": "base64", "media_type": "image/png", "data": img_data},
-                },
-                {
-                    "type": "text",
-                    "text": (
-                        "この画像はSMBC FXマーケットレポートのページです。"
-                        "「5.ディーラーの予想分布」セクションの「ドル円・ブルベアイメージ」という横棒グラフを見てください。"
-                        "最新（右側または下側）のグラフについて、ブル（青）・ベア（赤）・ニュートラル（白/グレー）の割合（%）を読み取ってください。"
-                        "必ずJSON形式のみで回答してください。例: {\"bull\": 40, \"bear\": 20, \"neutral\": 40}"
-                        "数値が読み取れない場合は {\"bull\": null, \"bear\": null, \"neutral\": null} と返してください。"
-                    ),
-                },
-            ],
-        }],
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+    model = genai.GenerativeModel("gemini-2.0-flash")
+    img = Image.open(png_path)
+    prompt = (
+        "この画像はSMBC FXマーケットレポートのページです。"
+        "「5.ディーラーの予想分布」セクションの「ドル円・ブルベアイメージ」という横棒グラフを見てください。"
+        "最新（右側または下側）のグラフについて、ブル（青）・ベア（赤）・ニュートラル（白/グレー）の割合（%）を読み取ってください。"
+        "必ずJSON形式のみで回答してください。例: {\"bull\": 40, \"bear\": 20, \"neutral\": 40}"
+        "数値が読み取れない場合は {\"bull\": null, \"bear\": null, \"neutral\": null} と返してください。"
     )
-    text = msg.content[0].text.strip()
+    response = model.generate_content([prompt, img])
+    text = response.text.strip()
     m = re.search(r'\{[^}]+\}', text)
     if not m:
         raise ValueError(f"JSONが見つかりません: {text}")
