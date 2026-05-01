@@ -42,10 +42,12 @@ def extract_bull_bear(png_path: str) -> dict:
     )
     response = client.models.generate_content(
         model="gemini-1.5-flash",
-        contents=[
-            types.Part.from_bytes(data=image_bytes, mime_type="image/png"),
-            prompt,
-        ],
+        contents=types.Content(
+            parts=[
+                types.Part.from_bytes(data=image_bytes, mime_type="image/png"),
+                types.Part(text=prompt),
+            ]
+        ),
     )
     text = response.text.strip()
     m = re.search(r'\{[^}]+\}', text)
