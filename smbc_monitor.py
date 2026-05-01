@@ -41,7 +41,7 @@ def extract_bull_bear(png_path: str) -> dict:
         "数値が読み取れない場合は {\"bull\": null, \"bear\": null, \"neutral\": null} と返してください。"
     )
     response = client.models.generate_content(
-        model="gemini-1.5-flash",
+        model="gemini-2.0-flash",
         contents=types.Content(
             parts=[
                 types.Part.from_bytes(data=image_bytes, mime_type="image/png"),
