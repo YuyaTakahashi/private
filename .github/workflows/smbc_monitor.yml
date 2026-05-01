@@ -1,0 +1,30 @@
+name: SMBC ミラトレ 自信指数モニター
+
+on:
+  schedule:
+    # 8:45 JST = 23:45 UTC 前日（月-金 JST = 日-木 UTC）
+    - cron: "45 23 * * 0-4"
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install PyMuPDF anthropic
+
+      - name: Run monitor
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LINE_TOKEN:        ${{ secrets.LINE_TOKEN }}
+          LINE_USER_ID:      ${{ secrets.LINE_USER_ID }}
+        run: python smbc_monitor.py
