@@ -26,12 +26,13 @@ def pdf_page_to_png(pdf_path: str, page_num: int, out_png: str, dpi: int = 200) 
 
 
 def extract_bull_bear(png_path: str) -> dict:
-    import google.generativeai as genai
-    from PIL import Image
+    from google import genai
+    from google.genai import types
 
-    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    img = Image.open(png_path)
+    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    with open(png_path, "rb") as f:
+        image_bytes = f.read()
+
     prompt = (
         "この画像はSMBC FXマーケットレポートのページです。"
         "「5.ディーラーの予想分布」セクションの「ドル円・ブルベアイメージ」という横棒グラフを見てください。"
@@ -39,7 +40,13 @@ def extract_bull_bear(png_path: str) -> dict:
         "必ずJSON形式のみで回答してください。例: {\"bull\": 40, \"bear\": 20, \"neutral\": 40}"
         "数値が読み取れない場合は {\"bull\": null, \"bear\": null, \"neutral\": null} と返してください。"
     )
-    response = model.generate_content([prompt, img])
+    response = client.models.generate_content(
+        model="gemini-1.5-flash",
+        contents=[
+            types.Part.from_bytes(data=image_bytes, mime_type="image/png"),
+            prompt,
+        ],
+    )
     text = response.text.strip()
     m = re.search(r'\{[^}]+\}', text)
     if not m:
