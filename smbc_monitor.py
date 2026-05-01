@@ -2,7 +2,7 @@
 """SMBC FX Market Report - 自信指数モニター（GitHub Actions版）
 CI = ブル% - ベア%。|CI| >= 35% → エントリー通知、< 35% → 日次サマリー通知
 """
-import json, urllib.request, os, sys, datetime, tempfile, re
+import json, urllib.request, os, sys, datetime, tempfile
 
 PDF_URL = "https://www.smbc.co.jp/market/pdf/comment.pdf"
 THRESHOLD = 35
@@ -25,35 +25,55 @@ def pdf_page_to_png(pdf_path: str, page_num: int, out_png: str, dpi: int = 200) 
     print(f"PNG OK: {pix.width}x{pix.height}")
 
 
-def extract_bull_bear(png_path: str) -> dict:
-    from google import genai
-    from google.genai import types
+def analyze_bar(png_path: str) -> tuple[int, int, int]:
+    """ピクセル色解析でブル/ベア/ニュートラル%を返す"""
+    from PIL import Image
+    img = Image.open(png_path).convert("RGB")
+    w, h = img.size
 
-    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-    with open(png_path, "rb") as f:
-        image_bytes = f.read()
+    # ページ縦65〜70%付近にブルベアバーチャートがある（200dpi=2339px時）
+    bar_top = int(h * 0.665)
+    bar_bot = int(h * 0.695)
+    bar_right = int(w * 0.52)  # 左半分がドル円
 
-    prompt = (
-        "この画像はSMBC FXマーケットレポートのページです。"
-        "「5.ディーラーの予想分布」セクションの「ドル円・ブルベアイメージ」という横棒グラフを見てください。"
-        "最新（右側または下側）のグラフについて、ブル（青）・ベア（赤）・ニュートラル（白/グレー）の割合（%）を読み取ってください。"
-        "必ずJSON形式のみで回答してください。例: {\"bull\": 40, \"bear\": 20, \"neutral\": 40}"
-        "数値が読み取れない場合は {\"bull\": null, \"bear\": null, \"neutral\": null} と返してください。"
-    )
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=types.Content(
-            parts=[
-                types.Part.from_bytes(data=image_bytes, mime_type="image/png"),
-                types.Part(text=prompt),
-            ]
-        ),
-    )
-    text = response.text.strip()
-    m = re.search(r'\{[^}]+\}', text)
-    if not m:
-        raise ValueError(f"JSONが見つかりません: {text}")
-    return json.loads(m.group())
+    crop = img.crop((30, bar_top, bar_right, bar_bot))
+    cw, ch = crop.size
+
+    # バー枠の内側を自動検出
+    mid_y = ch // 2
+    bar_x_start = bar_x_end = None
+    for x in range(cw):
+        r, g, b = crop.getpixel((x, mid_y))
+        brightness = (r + g + b) // 3
+        if brightness < 200 and bar_x_start is None:
+            bar_x_start = x + 1
+        if bar_x_start and brightness < 200 and x > bar_x_start + 10:
+            bar_x_end = x - 1
+
+    if bar_x_start is None or bar_x_end is None or bar_x_end <= bar_x_start:
+        bar_x_start, bar_x_end = int(cw * 0.05), int(cw * 0.95)
+
+    bull_px = bear_px = neutral_px = 0
+    bar_crop = crop.crop((bar_x_start, int(ch * 0.2), bar_x_end, int(ch * 0.8)))
+    bc_w, bc_h = bar_crop.size
+
+    for x in range(bc_w):
+        for y in range(bc_h):
+            r, g, b = bar_crop.getpixel((x, y))
+            if b > 130 and b > r + 30:
+                bull_px += 1
+            elif r > 130 and r > b + 30 and r > g - 10:
+                bear_px += 1
+            elif r > 200 and g > 200 and b > 200:
+                neutral_px += 1
+
+    total = bull_px + bear_px + neutral_px
+    if total == 0:
+        return 0, 0, 100
+
+    bull_pct = round(100 * bull_px / total)
+    bear_pct = round(100 * bear_px / total)
+    return bull_pct, bear_pct, max(0, 100 - bull_pct - bear_pct)
 
 
 def send_line(message: str) -> None:
@@ -84,15 +104,7 @@ def main() -> None:
         pdf_page_to_png(pdf_path, page_num=2, out_png=png_path)
 
         print("チャート解析中...")
-        values = extract_bull_bear(png_path)
-
-    bull = values.get("bull")
-    bear = values.get("bear")
-    neutral = values.get("neutral")
-
-    if bull is None or bear is None:
-        print("ERROR: 数値を読み取れませんでした", file=sys.stderr)
-        sys.exit(1)
+        bull, bear, neutral = analyze_bar(png_path)
 
     ci = bull - bear
     print(f"bull={bull}% bear={bear}% neutral={neutral}% CI={ci:+}%")

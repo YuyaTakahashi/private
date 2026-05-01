@@ -20,11 +20,10 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install PyMuPDF google-genai
+        run: pip install PyMuPDF Pillow
 
       - name: Run monitor
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          LINE_TOKEN:     ${{ secrets.LINE_TOKEN }}
-          LINE_USER_ID:   ${{ secrets.LINE_USER_ID }}
+          LINE_TOKEN:   ${{ secrets.LINE_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
         run: python smbc_monitor.py
