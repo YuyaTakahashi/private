@@ -26,51 +26,86 @@ def pdf_page_to_png(pdf_path: str, page_num: int, out_png: str, dpi: int = 200) 
 
 
 def analyze_bar(png_path: str) -> tuple[int, int, int]:
-    """ピクセル色解析でブル/ベア/ニュートラル%を返す"""
+    """ピクセル色解析でブル/ベア/ニュートラル%を返す。
+    SMBCの凡例: 赤=ブル、青=ベア、白=ニュートラル。
+    """
     from PIL import Image
     img = Image.open(png_path).convert("RGB")
     w, h = img.size
 
-    # ページ縦65〜70%付近にブルベアバーチャートがある（200dpi=2339px時）
-    bar_top = int(h * 0.665)
-    bar_bot = int(h * 0.695)
-    bar_right = int(w * 0.52)  # 左半分がドル円
+    def is_dark(r, g, b, thr=120):
+        avg = (r + g + b) // 3
+        if avg >= thr:
+            return False
+        return abs(r - g) < 30 and abs(g - b) < 30 and abs(r - b) < 30
 
-    crop = img.crop((30, bar_top, bar_right, bar_bot))
-    cw, ch = crop.size
+    # 「5.ディーラーの予想分布」のドル円バーは縦65〜71%、左半分にある
+    y_band = (int(h * 0.65), int(h * 0.71))
+    x_band = (30, int(w * 0.50))
+    band_w = x_band[1] - x_band[0]
 
-    # バー枠の内側を自動検出
-    mid_y = ch // 2
-    bar_x_start = bar_x_end = None
-    for x in range(cw):
-        r, g, b = crop.getpixel((x, mid_y))
-        brightness = (r + g + b) // 3
-        if brightness < 200 and bar_x_start is None:
-            bar_x_start = x + 1
-        if bar_x_start and brightness < 200 and x > bar_x_start + 10:
-            bar_x_end = x - 1
+    # バーの上下枠（細い水平黒線）を検出
+    horiz_borders = [
+        y for y in range(*y_band)
+        if sum(1 for x in range(*x_band) if is_dark(*img.getpixel((x, y)))) >= band_w * 0.6
+    ]
+    hgroups = []
+    if horiz_borders:
+        cur = [horiz_borders[0]]
+        for y in horiz_borders[1:]:
+            if y - cur[-1] <= 2:
+                cur.append(y)
+            else:
+                hgroups.append((cur[0], cur[-1]))
+                cur = [y]
+        hgroups.append((cur[0], cur[-1]))
+    thin = [g for g in hgroups if g[1] - g[0] <= 3]
+    top_border = bot_border = None
+    for i, g1 in enumerate(thin):
+        for g2 in thin[i + 1:]:
+            if 20 <= g2[0] - g1[1] <= 60:
+                top_border, bot_border = g1, g2
+                break
+        if top_border:
+            break
+    if top_border is None:
+        return 0, 0, 100
 
-    if bar_x_start is None or bar_x_end is None or bar_x_end <= bar_x_start:
-        bar_x_start, bar_x_end = int(cw * 0.05), int(cw * 0.95)
+    # 上枠行の最長ダークラン = バーの左右枠
+    y = top_border[0]
+    dark_xs = [x for x in range(*x_band) if is_dark(*img.getpixel((x, y)))]
+    runs = []
+    if dark_xs:
+        cur = [dark_xs[0]]
+        for x in dark_xs[1:]:
+            if x - cur[-1] <= 2:
+                cur.append(x)
+            else:
+                runs.append((cur[0], cur[-1]))
+                cur = [x]
+        runs.append((cur[0], cur[-1]))
+    if not runs:
+        return 0, 0, 100
+    longest = max(runs, key=lambda r: r[1] - r[0])
+    inner_x0, inner_x1 = longest[0] + 1, longest[1] - 1
+    inner_y0, inner_y1 = top_border[1] + 1, bot_border[0] - 1
 
+    inner = img.crop((inner_x0, inner_y0, inner_x1, inner_y1))
+    iw, ih = inner.size
     bull_px = bear_px = neutral_px = 0
-    bar_crop = crop.crop((bar_x_start, int(ch * 0.2), bar_x_end, int(ch * 0.8)))
-    bc_w, bc_h = bar_crop.size
-
-    for x in range(bc_w):
-        for y in range(bc_h):
-            r, g, b = bar_crop.getpixel((x, y))
+    for x in range(iw):
+        for yy in range(ih):
+            r, g, b = inner.getpixel((x, yy))
             if b > 130 and b > r + 30:
-                bull_px += 1
+                bear_px += 1   # 青 = ベア
             elif r > 130 and r > b + 30 and r > g - 10:
-                bear_px += 1
+                bull_px += 1   # 赤 = ブル
             elif r > 200 and g > 200 and b > 200:
                 neutral_px += 1
 
     total = bull_px + bear_px + neutral_px
     if total == 0:
         return 0, 0, 100
-
     bull_pct = round(100 * bull_px / total)
     bear_pct = round(100 * bear_px / total)
     return bull_pct, bear_pct, max(0, 100 - bull_pct - bear_pct)
@@ -110,12 +145,14 @@ def main() -> None:
     print(f"bull={bull}% bear={bear}% neutral={neutral}% CI={ci:+}%")
 
     if abs(ci) >= THRESHOLD:
-        direction = "BULL long（円安）" if ci > 0 else "BEAR short（円高）"
-        icon = "🟢" if ci > 0 else "🔴"
+        if ci > 0:
+            label, icon, action = "BULL", "🟢", "USD/JPY 買い（ドル買い・円売り）"
+        else:
+            label, icon, action = "BEAR", "🔴", "USD/JPY 売り（ドル売り・円買い）"
         msg = (
-            f"{icon} 【ミラトレ】{direction}\n"
+            f"{icon} 【ミラトレ】{label} エントリー成立\n"
             f"ブル{bull}% / ベア{bear}% → CI={ci:+}%\n"
-            f"エントリー条件成立"
+            f"👉 {action}"
         )
     else:
         msg = (
