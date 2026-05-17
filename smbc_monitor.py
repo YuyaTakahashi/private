@@ -2,7 +2,7 @@
 """SMBC FX Market Report - 自信指数モニター（GitHub Actions版）
 CI = ブル% - ベア%。|CI| >= 35% → エントリー通知、< 35% → 日次サマリー通知
 """
-import json, urllib.request, os, sys, datetime, tempfile
+import json, urllib.request, os, sys, datetime, tempfile, time
 
 PDF_URL = "https://www.smbc.co.jp/market/pdf/comment.pdf"
 THRESHOLD = 35
@@ -111,18 +111,28 @@ def analyze_bar(png_path: str) -> tuple[int, int, int]:
     return bull_pct, bear_pct, max(0, 100 - bull_pct - bear_pct)
 
 
-def send_line(message: str) -> None:
+def send_line(message: str, retries: int = 3, delay: float = 5.0) -> None:
     token = os.environ["LINE_TOKEN"]
     uid = os.environ["LINE_USER_ID"]
     body = json.dumps({"to": uid, "messages": [{"type": "text", "text": message}]}).encode()
-    req = urllib.request.Request(
-        "https://api.line.me/v2/bot/message/push",
-        data=body,
-        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-        method="POST",
-    )
-    res = urllib.request.urlopen(req, timeout=10)
-    print(f"LINE OK: {res.status}")
+    last_err: Exception | None = None
+    for attempt in range(1, retries + 1):
+        try:
+            req = urllib.request.Request(
+                "https://api.line.me/v2/bot/message/push",
+                data=body,
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                method="POST",
+            )
+            res = urllib.request.urlopen(req, timeout=15)
+            print(f"LINE OK: {res.status}")
+            return
+        except Exception as e:
+            last_err = e
+            print(f"LINE attempt {attempt}/{retries} failed: {e}")
+            if attempt < retries:
+                time.sleep(delay)
+    raise RuntimeError(f"LINE send failed after {retries} attempts") from last_err
 
 
 def main() -> None:
@@ -152,13 +162,15 @@ def main() -> None:
         msg = (
             f"{icon} 【ミラトレ】{label} エントリー成立\n"
             f"ブル{bull}% / ベア{bear}% → CI={ci:+}%\n"
-            f"👉 {action}"
+            f"👉 {action}\n"
+            f"{PDF_URL}"
         )
     else:
         msg = (
             f"[miratrade] {today} daily\n"
             f"bull {bull}% / bear {bear}% -> CI={ci:+}%\n"
-            f"no entry (+-{THRESHOLD}%)"
+            f"no entry (+-{THRESHOLD}%)\n"
+            f"{PDF_URL}"
         )
 
     send_line(msg)
