@@ -1,9 +1,6 @@
 name: SMBC ミラトレ 自信指数モニター
 
 on:
-  schedule:
-    # 8:45 JST = 23:45 UTC 前日（月-金 JST = 日-木 UTC）
-    - cron: "45 23 * * 0-4"
   workflow_dispatch:
 
 jobs:
