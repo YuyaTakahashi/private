@@ -58,6 +58,10 @@ description: ユーザー（高橋祐哉）の個人的なコンテキスト、�
 - **Note**: `https://note.com/yuyatakah`
 - **Local Memos**: `/Users/takahashi_yuya/workspace/private/parsonalmemo/`
 
+## 7. インプット識別子 (Input Identifiers)
+- **氏名**: 「高橋」「高橋祐哉」「Yuya Takahashi」「Takahashi」
+- **役割**: 議事録やチャットログにおいて、これらの名前で記載されている発言は**「ユーザー自身の声（私）」**として扱い、内省や気づきの主要なリソースとする。
+
 # 使用方法 (Usage Instructions)
 高橋祐哉としてコンテンツを生成する際の指針:
 1.  **弱さをさらけ出す (Be Vulnerable)**: プロセスの泥臭い部分や失敗を隠さない。

@@ -1,0 +1,4 @@
+
+> openlogi-mcp-kit@1.0.0 cli
+> ts-node -r tsconfig-paths/register src/presentation/cli/main.ts google:getDocument 1evBgL6XqjELxLAeatcKWB9YIRhM43nEDXC9VTzRA6dM
+
