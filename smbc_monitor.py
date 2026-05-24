@@ -111,10 +111,36 @@ def analyze_bar(png_path: str) -> tuple[int, int, int]:
     return bull_pct, bear_pct, max(0, 100 - bull_pct - bear_pct)
 
 
-def send_line(message: str, retries: int = 3, delay: float = 5.0) -> None:
+def build_flex(text: str, pdf_url: str) -> dict:
+    return {
+        "type": "flex",
+        "altText": text[:400],
+        "contents": {
+            "type": "bubble",
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [{"type": "text", "text": text, "wrap": True}],
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "button",
+                        "action": {"type": "uri", "label": "PDFを開く", "uri": pdf_url},
+                        "style": "primary",
+                    }
+                ],
+            },
+        },
+    }
+
+
+def send_line(message: dict, retries: int = 3, delay: float = 5.0) -> None:
     token = os.environ["LINE_TOKEN"]
     uid = os.environ["LINE_USER_ID"]
-    body = json.dumps({"to": uid, "messages": [{"type": "text", "text": message}]}).encode()
+    body = json.dumps({"to": uid, "messages": [message]}).encode()
     last_err: Exception | None = None
     for attempt in range(1, retries + 1):
         try:
@@ -159,21 +185,19 @@ def main() -> None:
             label, icon, action = "BULL", "🟢", "USD/JPY 買い（ドル買い・円売り）"
         else:
             label, icon, action = "BEAR", "🔴", "USD/JPY 売り（ドル売り・円買い）"
-        msg = (
+        text = (
             f"{icon} 【ミラトレ】{label} エントリー成立\n"
             f"ブル{bull}% / ベア{bear}% → CI={ci:+}%\n"
-            f"👉 {action}\n"
-            f"{PDF_URL}"
+            f"👉 {action}"
         )
     else:
-        msg = (
+        text = (
             f"[miratrade] {today} daily\n"
             f"bull {bull}% / bear {bear}% -> CI={ci:+}%\n"
-            f"no entry (+-{THRESHOLD}%)\n"
-            f"{PDF_URL}"
+            f"no entry (+-{THRESHOLD}%)"
         )
 
-    send_line(msg)
+    send_line(build_flex(text, PDF_URL))
 
 
 if __name__ == "__main__":
