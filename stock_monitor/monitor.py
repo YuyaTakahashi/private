@@ -294,7 +294,7 @@ def run_test_notify(config: dict):
         ("NVDA", PRIORITY_SEVERE, PRIORITY_MILD,  {"close": 172.70, "change_pct": +3.21}),
         ("TSLA", PRIORITY_MILD,   PRIORITY_NORMAL, {"close": 370.00, "change_pct": +2.10}),
     ]
-    line_lines = ["【株アラート】テスト送信（サンプル）"]
+    line_lines = ["【株シグナル】テスト送信（サンプル）"]
     for ticker, p_from, p_to, s in sample_alerts:
         line_lines.append(
             f"\n{ticker}  ${s['close']} ({s['change_pct']:+.2f}%)"
@@ -363,7 +363,7 @@ def run():
             mail_lines.append(f"{PRIORITY_LABEL[p_from]} → {PRIORITY_LABEL[p_to]}")
             mail_lines.append(format_row(ticker, s))
             mail_lines.append("")
-        subject = f"【株アラート】{len(alerts)}件の状態変化あり  {now_str}"
+        subject = f"【株シグナル】{len(alerts)}件の状態変化あり  {now_str}"
     else:
         subject = f"【株モニター】日次レポート  {now_str}"
 
@@ -372,7 +372,7 @@ def run():
 
     # ── LINE: 状態変化時のみ ──
     if alerts:
-        line_lines = [f"【株アラート】{len(alerts)}件の状態変化"]
+        line_lines = [f"【株シグナル】{len(alerts)}件の状態変化"]
         for ticker, p_from, p_to, s in alerts:
             line_lines.append(
                 f"\n{ticker}  ${s['close']} ({s['change_pct']:+.2f}%)"
