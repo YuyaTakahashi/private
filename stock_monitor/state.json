@@ -7,13 +7,13 @@
     "change_pct": 1.95,
     "is_green": true
   },
-  "last_run_date": "2026-05-22",
+  "last_run_date": "2026-05-25",
   "2760.T": {
-    "date": "2026-05-22",
+    "date": "2026-05-25",
     "aligned": true,
     "priority": 0,
-    "close": 4225.0,
-    "change_pct": 0.24,
+    "close": 4210.0,
+    "change_pct": -0.36,
     "is_green": false
   },
   "ADI": {
@@ -165,7 +165,7 @@
     "aligned": false,
     "priority": 2,
     "close": 177.01,
-    "change_pct": 0.59,
+    "change_pct": 1.0,
     "is_green": true
   },
   "SMCI": {
