@@ -171,17 +171,19 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:新規ベースを作成": false,
       "switcher:クイックスイッチャーを開く": false,
       "graph:グラフビューを開く": false,
       "canvas:新規キャンバスを作成": false,
       "daily-notes:今日のデイリーノートを開く": false,
       "templates:テンプレートを挿入": false,
-      "command-palette:コマンドパレットを開く": false,
-      "bases:Create new base": false
+      "command-palette:コマンドパレットを開く": false
     }
   },
-  "active": "bb83b9ad7663fd87",
+  "active": "1507733b863dc94d",
   "lastOpenFiles": [
+    "diary/2026-05-27.md",
+    "diary/2026-05-26.md",
     "article-creation/UX用語生成エージェント（解説難易度チューニング.yml",
     "article-creation/UX用語生成エージェント（解説難易度チューニング_bk.yml",
     "article-creation/UX用語生成エージェント（解説難易度チューニング） .yml",
@@ -211,7 +213,6 @@
     "読書会・勉強会/vitary_ws/transcript.md",
     "読書会・勉強会/vitary_ws/day1/summary.md",
     "読書会・勉強会/vitary_ws/summary.md",
-    "読書会・勉強会/vitary_ws/summary",
     "読書会・勉強会/vitary_ws/day1/day1.md",
     "読書会・勉強会/vitary_ws/day1.md",
     "daily/2026-02-15.md",
@@ -225,7 +226,6 @@
     "PXL_20260215_142550621.jpg",
     "読書会・勉強会/12歳から知っておきたいAI/2026-02-15.md",
     "読書会・勉強会/UX collective勉強会/20213.md",
-    "2026-02-15.md",
-    "読書会・勉強会/12歳から知っておきたいAI/report_draft_v2.md"
+    "2026-02-15.md"
   ]
 }
