@@ -164,7 +164,7 @@ def main():
         msg = (
             f"[miratrade] {today} daily\n"
             f"bull {bull}% / bear {bear}% -> CI={ci:+}%\n"
-            f"no entry (+-{THRESHOLD}%)"
+            f"{PDF_URL}"
         )
         send_line(msg, config)
 
