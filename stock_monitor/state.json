@@ -7,14 +7,14 @@
     "change_pct": 1.04,
     "is_green": true
   },
-  "last_run_date": "2026-06-18",
+  "last_run_date": "2026-06-19",
   "2760.T": {
-    "date": "2026-06-18",
+    "date": "2026-06-19",
     "aligned": false,
     "priority": 1,
-    "close": 4170.0,
-    "change_pct": 3.99,
-    "is_green": true
+    "close": 4130.0,
+    "change_pct": -0.96,
+    "is_green": false
   },
   "ADI": {
     "date": "2026-06-18",
@@ -65,12 +65,12 @@
     "is_green": true
   },
   "DIOD": {
-    "date": "2026-06-18",
+    "date": "2026-06-17",
     "aligned": true,
     "priority": 0,
-    "close": 119.46,
-    "change_pct": 9.8,
-    "is_green": true
+    "close": 108.8,
+    "change_pct": -0.67,
+    "is_green": false
   },
   "GOOG": {
     "date": "2026-06-18",
@@ -177,11 +177,11 @@
     "is_green": true
   },
   "SSYS": {
-    "date": "2026-06-18",
+    "date": "2026-06-17",
     "aligned": false,
     "priority": 1,
-    "close": 8.92,
-    "change_pct": 1.13,
+    "close": 8.82,
+    "change_pct": 0.92,
     "is_green": true
   },
   "TSM": {
