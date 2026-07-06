@@ -131,3 +131,7 @@ Traceback (most recent call last):
   File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 1349, in do_open
     raise URLError(err)
 urllib.error.URLError: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+PDFダウンロード中...
+チャート解析中...
+bull=0% bear=0% neutral=100% CI=+0%
+LINE送信完了
