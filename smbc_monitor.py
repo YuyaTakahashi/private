@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
 """SMBC FX Market Report - 自信指数モニター（GitHub Actions版）
 CI = ブル% - ベア%。|CI| >= 35% → エントリー通知、< 35% → 日次サマリー通知
+
+解析はPDFのベクター図形から「5.ディーラーの予想分布」のドル円バーを直接取り出す。
+各セグメントの色はレンダリング結果から判定する（凡例: 青=ベア / 白=ニュートラル / 赤=ブル）。
 """
-import json, urllib.request, os, sys, datetime, tempfile, time
+from __future__ import annotations  # Python 3.9 でも `str | None` を書けるようにする
+
+import json, urllib.request, os, datetime, tempfile, time
 
 PDF_URL = "https://www.smbc.co.jp/market/pdf/comment.pdf"
 THRESHOLD = 35
+SECTION_KEYWORD = "ディーラーの予想分布"
+RENDER_SCALE = 200 / 72  # 200dpi相当
 
 
 def download_pdf(url: str, dest: str) -> None:
@@ -15,100 +22,113 @@ def download_pdf(url: str, dest: str) -> None:
             f.write(r.read())
 
 
-def pdf_page_to_png(pdf_path: str, page_num: int, out_png: str, dpi: int = 200) -> None:
-    import fitz
-    doc = fitz.open(pdf_path)
-    page = doc[page_num - 1]
-    mat = fitz.Matrix(dpi / 72, dpi / 72)
-    pix = page.get_pixmap(matrix=mat)
-    pix.save(out_png)
-    print(f"PNG OK: {pix.width}x{pix.height}")
+def _classify(r: int, g: int, b: int) -> str | None:
+    if b > 130 and b > r + 30 and b > g + 30:
+        return "bear"
+    if r > 130 and r > b + 30 and r > g + 30:
+        return "bull"
+    if r > 200 and g > 200 and b > 200:
+        return "neutral"
+    return None
 
 
-def analyze_bar(png_path: str) -> tuple[int, int, int]:
-    """ピクセル色解析でブル/ベア/ニュートラル%を返す。
-    SMBCの凡例: 赤=ブル、青=ベア、白=ニュートラル。
+def _segment_color(pix, rect, scale: float) -> str:
+    """セグメント矩形に対応する描画領域を走査し、支配的な色を返す。
+    バーは網点パターンで塗られているので1点ではなく面でサンプリングする。
     """
-    from PIL import Image
-    img = Image.open(png_path).convert("RGB")
-    w, h = img.size
+    x0, x1 = int(rect.x0 * scale) + 2, min(int(rect.x1 * scale) - 2, pix.width)
+    y0, y1 = int(rect.y0 * scale) + 2, min(int(rect.y1 * scale) - 2, pix.height)
+    if x1 <= x0 or y1 <= y0:
+        return "neutral"
+    tally = {"bear": 0, "bull": 0, "neutral": 0}
+    step = max(1, (x1 - x0) // 40)
+    for x in range(x0, x1, step):
+        for y in range(y0, y1):
+            c = _classify(*pix.pixel(x, y)[:3])
+            if c:
+                tally[c] += 1
+    if tally["bear"] == tally["bull"] == 0:
+        return "neutral"
+    return max(tally, key=tally.get)
 
-    def is_dark(r, g, b, thr=120):
-        avg = (r + g + b) // 3
-        if avg >= thr:
-            return False
-        return abs(r - g) < 30 and abs(g - b) < 30 and abs(r - b) < 30
 
-    # 「5.ディーラーの予想分布」のドル円バーは縦65〜71%、左半分にある
-    y_band = (int(h * 0.65), int(h * 0.71))
-    x_band = (30, int(w * 0.50))
-    band_w = x_band[1] - x_band[0]
+def _dedupe(rects, tol: float = 0.4):
+    """このPDFは同じ内容を二重に描画するため、ほぼ同一の矩形は1つに畳む"""
+    out = []
+    for r in rects:
+        if any(
+            abs(k.x0 - r.x0) < tol and abs(k.y0 - r.y0) < tol
+            and abs(k.x1 - r.x1) < tol and abs(k.y1 - r.y1) < tol
+            for k in out
+        ):
+            continue
+        out.append(r)
+    return out
 
-    # バーの上下枠（細い水平黒線）を検出
-    horiz_borders = [
-        y for y in range(*y_band)
-        if sum(1 for x in range(*x_band) if is_dark(*img.getpixel((x, y)))) >= band_w * 0.6
-    ]
-    hgroups = []
-    if horiz_borders:
-        cur = [horiz_borders[0]]
-        for y in horiz_borders[1:]:
-            if y - cur[-1] <= 2:
-                cur.append(y)
-            else:
-                hgroups.append((cur[0], cur[-1]))
-                cur = [y]
-        hgroups.append((cur[0], cur[-1]))
-    thin = [g for g in hgroups if g[1] - g[0] <= 3]
-    top_border = bot_border = None
-    for i, g1 in enumerate(thin):
-        for g2 in thin[i + 1:]:
-            if 20 <= g2[0] - g1[1] <= 60:
-                top_border, bot_border = g1, g2
-                break
-        if top_border:
+
+def analyze_bar(pdf_path: str) -> tuple[int, int, int]:
+    """ドル円バーの (bull%, bear%, neutral%) を返す。
+    検出できなかった場合は例外を投げる（黙って0,0,100を返すと故障が見えなくなるため）。
+    """
+    import fitz
+
+    doc = fitz.open(pdf_path)
+    page, hits = None, []
+    for p in doc:
+        found = p.search_for(SECTION_KEYWORD)
+        if found:
+            page, hits = p, found
             break
-    if top_border is None:
-        return 0, 0, 100
+    if page is None:
+        raise ValueError(f"「{SECTION_KEYWORD}」の見出しが見つかりません")
 
-    # 上枠行の最長ダークラン = バーの左右枠
-    y = top_border[0]
-    dark_xs = [x for x in range(*x_band) if is_dark(*img.getpixel((x, y)))]
+    y_top = hits[0].y1
+    y_bot = y_top + 80
+
+    cands = _dedupe([
+        d["rect"] for d in page.get_drawings()
+        if y_top < d["rect"].y0 < y_bot
+        and 5 <= d["rect"].height <= 30 and d["rect"].width >= 2
+    ])
+    cands.sort(key=lambda r: (round(r.y0, 1), r.x0))
+
+    # 同じ高さで水平に連続する矩形をひとかたまり（＝1本のバー）にまとめる
     runs = []
-    if dark_xs:
-        cur = [dark_xs[0]]
-        for x in dark_xs[1:]:
-            if x - cur[-1] <= 2:
-                cur.append(x)
-            else:
-                runs.append((cur[0], cur[-1]))
-                cur = [x]
-        runs.append((cur[0], cur[-1]))
-    if not runs:
-        return 0, 0, 100
-    longest = max(runs, key=lambda r: r[1] - r[0])
-    inner_x0, inner_x1 = longest[0] + 1, longest[1] - 1
-    inner_y0, inner_y1 = top_border[1] + 1, bot_border[0] - 1
+    for r in cands:
+        if runs:
+            p = runs[-1][-1]
+            if (abs(p.y0 - r.y0) < 0.5 and abs(p.y1 - r.y1) < 0.5
+                    and abs(p.x1 - r.x0) < 1.0):
+                runs[-1].append(r)
+                continue
+        runs.append([r])
 
-    inner = img.crop((inner_x0, inner_y0, inner_x1, inner_y1))
-    iw, ih = inner.size
-    bull_px = bear_px = neutral_px = 0
-    for x in range(iw):
-        for yy in range(ih):
-            r, g, b = inner.getpixel((x, yy))
-            if b > 130 and b > r + 30:
-                bear_px += 1   # 青 = ベア
-            elif r > 130 and r > b + 30 and r > g - 10:
-                bull_px += 1   # 赤 = ブル
-            elif r > 200 and g > 200 and b > 200:
-                neutral_px += 1
+    pix = page.get_pixmap(matrix=fitz.Matrix(RENDER_SCALE, RENDER_SCALE))
 
-    total = bull_px + bear_px + neutral_px
-    if total == 0:
-        return 0, 0, 100
-    bull_pct = round(100 * bull_px / total)
-    bear_pct = round(100 * bear_px / total)
-    return bull_pct, bear_pct, max(0, 100 - bull_pct - bear_pct)
+    bars = []
+    for run in runs:
+        total = sum(s.width for s in run)
+        if total <= 50:
+            continue
+        colors = [_segment_color(pix, s, RENDER_SCALE) for s in run]
+        # 青か赤を含むものだけが実際のバー（白背景の枠を除外する）
+        if any(c in ("bear", "bull") for c in colors):
+            bars.append((run, colors, total))
+
+    if not bars:
+        raise ValueError("ブル/ベアのバーを検出できませんでした（PDFのレイアウト変更の可能性）")
+
+    bars.sort(key=lambda t: t[0][0].x0)
+    run, colors, total = bars[0]  # 左＝ドル円、右＝ユーロ円
+
+    pct = {"bull": 0.0, "bear": 0.0, "neutral": 0.0}
+    for seg, c in zip(run, colors):
+        pct[c] += 100 * seg.width / total
+
+    bull, bear = round(pct["bull"]), round(pct["bear"])
+    detail = " / ".join(f"{c}:{s.width:.1f}pt" for s, c in zip(run, colors))
+    print(f"bar x={run[0].x0:.1f}-{run[-1].x1:.1f} total={total:.1f}pt  {detail}")
+    return bull, bear, max(0, 100 - bull - bear)
 
 
 def build_flex(text: str, pdf_url: str) -> dict:
@@ -166,16 +186,18 @@ def main() -> None:
 
     with tempfile.TemporaryDirectory() as tmpdir:
         pdf_path = os.path.join(tmpdir, "smbc.pdf")
-        png_path = os.path.join(tmpdir, "page2.png")
 
         print("PDFダウンロード中...")
         download_pdf(PDF_URL, pdf_path)
 
-        print("PNG変換中...")
-        pdf_page_to_png(pdf_path, page_num=2, out_png=png_path)
-
         print("チャート解析中...")
-        bull, bear, neutral = analyze_bar(png_path)
+        try:
+            bull, bear, neutral = analyze_bar(pdf_path)
+        except Exception as e:
+            print(f"解析失敗: {e}")
+            send_line(build_flex(
+                f"⚠️ 【ミラトレ】{today} 解析失敗\n{e}\nPDFを直接確認してください。", PDF_URL))
+            raise
 
     ci = bull - bear
     print(f"bull={bull}% bear={bear}% neutral={neutral}% CI={ci:+}%")
@@ -193,7 +215,7 @@ def main() -> None:
     else:
         text = (
             f"[miratrade] {today} daily\n"
-            f"bull {bull}% / bear {bear}% -> CI={ci:+}%\n"
+            f"bull {bull}% / bear {bear}% / neutral {neutral}% -> CI={ci:+}%\n"
             f"no entry (+-{THRESHOLD}%)"
         )
 
