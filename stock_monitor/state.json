@@ -7,14 +7,14 @@
     "change_pct": -1.26,
     "is_green": true
   },
-  "last_run_date": "2026-08-26",
+  "last_run_date": "2026-08-27",
   "2760.T": {
-    "date": "2026-08-26",
+    "date": "2026-08-27",
     "aligned": false,
     "priority": 1,
-    "close": 4050.0,
-    "change_pct": 1.5,
-    "is_green": true
+    "close": 4105.0,
+    "change_pct": 1.36,
+    "is_green": false
   },
   "ADI": {
     "date": "2026-08-26",
