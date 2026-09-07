@@ -7,13 +7,13 @@
     "change_pct": -5.92,
     "is_green": false
   },
-  "last_run_date": "2026-09-04",
+  "last_run_date": "2026-09-07",
   "2760.T": {
-    "date": "2026-09-04",
-    "aligned": true,
-    "priority": 0,
-    "close": 4115.0,
-    "change_pct": 0.61,
+    "date": "2026-09-07",
+    "aligned": false,
+    "priority": 1,
+    "close": 4180.0,
+    "change_pct": 1.58,
     "is_green": true
   },
   "ADI": {
@@ -52,7 +52,7 @@
     "date": "2026-09-04",
     "aligned": false,
     "priority": 2,
-    "close": 357.89,
+    "close": 357.9,
     "change_pct": 0.21,
     "is_green": false
   },
@@ -77,7 +77,7 @@
     "aligned": false,
     "priority": 2,
     "close": 335.31,
-    "change_pct": -1.11,
+    "change_pct": -1.05,
     "is_green": false
   },
   "GOOGL": {
@@ -85,7 +85,7 @@
     "aligned": false,
     "priority": 2,
     "close": 338.46,
-    "change_pct": -1.17,
+    "change_pct": -1.11,
     "is_green": false
   },
   "HON": {
