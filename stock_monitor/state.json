@@ -1,203 +1,203 @@
 {
   "TSLA": {
-    "date": "2026-10-12",
+    "date": "2026-10-15",
     "aligned": true,
     "priority": 0,
-    "close": 378.03,
-    "change_pct": -1.22,
-    "is_green": false
+    "close": 362.44,
+    "change_pct": -1.29,
+    "is_green": true
   },
-  "last_run_date": "2026-10-14",
+  "last_run_date": "2026-10-15",
   "2760.T": {
-    "date": "2026-10-14",
+    "date": "2026-10-15",
     "aligned": true,
     "priority": 0,
-    "close": 4965.0,
-    "change_pct": 0.0,
+    "close": 4760.0,
+    "change_pct": -7.93,
     "is_green": false
   },
   "ADI": {
-    "date": "2026-10-12",
+    "date": "2026-10-15",
     "aligned": true,
     "priority": 0,
-    "close": 406.25,
-    "change_pct": 0.01,
+    "close": 403.95,
+    "change_pct": 0.09,
     "is_green": true
   },
   "AMD": {
-    "date": "2026-10-12",
-    "aligned": true,
-    "priority": 0,
-    "close": 594.24,
-    "change_pct": -2.28,
-    "is_green": false
-  },
-  "AMZN": {
-    "date": "2026-10-12",
-    "aligned": false,
-    "priority": 2,
-    "close": 259.53,
-    "change_pct": -1.11,
-    "is_green": false
-  },
-  "ARM": {
-    "date": "2026-10-12",
+    "date": "2026-10-15",
     "aligned": false,
     "priority": 1,
-    "close": 255.24,
-    "change_pct": -4.15,
-    "is_green": false
+    "close": 562.23,
+    "change_pct": -1.5,
+    "is_green": true
   },
-  "AVGO": {
-    "date": "2026-10-12",
+  "AMZN": {
+    "date": "2026-10-15",
     "aligned": false,
     "priority": 2,
-    "close": 354.73,
-    "change_pct": -1.88,
-    "is_green": false
+    "close": 254.76,
+    "change_pct": 0.27,
+    "is_green": true
+  },
+  "ARM": {
+    "date": "2026-10-15",
+    "aligned": false,
+    "priority": 1,
+    "close": 244.79,
+    "change_pct": 2.85,
+    "is_green": true
+  },
+  "AVGO": {
+    "date": "2026-10-15",
+    "aligned": false,
+    "priority": 2,
+    "close": 344.33,
+    "change_pct": -0.55,
+    "is_green": true
   },
   "CEG": {
-    "date": "2026-10-12",
+    "date": "2026-10-15",
     "aligned": true,
     "priority": 0,
-    "close": 293.89,
-    "change_pct": -1.4,
+    "close": 275.0,
+    "change_pct": -1.62,
     "is_green": false
   },
   "DIOD": {
-    "date": "2026-10-12",
-    "aligned": true,
-    "priority": 0,
-    "close": 90.62,
-    "change_pct": -4.55,
-    "is_green": false
+    "date": "2026-10-15",
+    "aligned": false,
+    "priority": 1,
+    "close": 85.36,
+    "change_pct": -1.56,
+    "is_green": true
   },
   "GOOG": {
-    "date": "2026-10-12",
+    "date": "2026-10-15",
     "aligned": false,
     "priority": 2,
-    "close": 348.97,
-    "change_pct": 0.32,
+    "close": 344.91,
+    "change_pct": 0.37,
     "is_green": true
   },
   "GOOGL": {
-    "date": "2026-10-12",
+    "date": "2026-10-15",
     "aligned": false,
     "priority": 2,
-    "close": 352.72,
-    "change_pct": 0.3,
+    "close": 349.22,
+    "change_pct": 0.45,
     "is_green": true
   },
   "HON": {
-    "date": "2026-10-12",
+    "date": "2026-10-15",
     "aligned": false,
     "priority": 2,
-    "close": 209.64,
-    "change_pct": 0.92,
+    "close": 210.5,
+    "change_pct": 1.39,
     "is_green": true
   },
   "IBM": {
-    "date": "2026-10-12",
+    "date": "2026-10-15",
     "aligned": false,
     "priority": 2,
-    "close": 227.02,
-    "change_pct": -0.05,
-    "is_green": false
+    "close": 234.12,
+    "change_pct": 2.74,
+    "is_green": true
   },
   "IRDM": {
-    "date": "2026-10-12",
+    "date": "2026-10-15",
     "aligned": false,
     "priority": 2,
-    "close": 47.07,
-    "change_pct": -0.84,
-    "is_green": false
+    "close": 44.99,
+    "change_pct": -1.73,
+    "is_green": true
   },
   "LMT": {
-    "date": "2026-10-12",
+    "date": "2026-10-15",
     "aligned": false,
     "priority": 2,
-    "close": 511.88,
-    "change_pct": 0.45,
-    "is_green": false
+    "close": 532.64,
+    "change_pct": 1.99,
+    "is_green": true
   },
   "MSFT": {
-    "date": "2026-10-12",
+    "date": "2026-10-15",
     "aligned": true,
     "priority": 0,
-    "close": 541.15,
-    "change_pct": 1.14,
+    "close": 539.44,
+    "change_pct": 1.08,
     "is_green": true
   },
   "MU": {
-    "date": "2026-10-12",
-    "aligned": true,
-    "priority": 0,
-    "close": 989.04,
-    "change_pct": -3.88,
-    "is_green": false
+    "date": "2026-10-15",
+    "aligned": false,
+    "priority": 1,
+    "close": 931.24,
+    "change_pct": 1.87,
+    "is_green": true
   },
   "NVDA": {
-    "date": "2026-10-12",
-    "aligned": true,
-    "priority": 0,
-    "close": 226.32,
-    "change_pct": -1.29,
-    "is_green": false
+    "date": "2026-10-15",
+    "aligned": false,
+    "priority": 1,
+    "close": 217.23,
+    "change_pct": -1.84,
+    "is_green": true
   },
   "PLTR": {
-    "date": "2026-10-12",
+    "date": "2026-10-15",
     "aligned": true,
     "priority": 0,
-    "close": 209.0,
-    "change_pct": -0.02,
+    "close": 200.5,
+    "change_pct": -0.23,
     "is_green": true
   },
   "QCOM": {
-    "date": "2026-10-12",
+    "date": "2026-10-15",
     "aligned": false,
     "priority": 1,
-    "close": 174.43,
-    "change_pct": -0.61,
-    "is_green": false
+    "close": 178.4,
+    "change_pct": 3.35,
+    "is_green": true
   },
   "RTX": {
-    "date": "2026-10-12",
+    "date": "2026-10-15",
     "aligned": false,
     "priority": 2,
-    "close": 186.66,
-    "change_pct": 0.37,
+    "close": 186.95,
+    "change_pct": 0.26,
     "is_green": false
   },
   "SMCI": {
-    "date": "2026-10-12",
-    "aligned": true,
-    "priority": 0,
-    "close": 39.98,
-    "change_pct": -4.49,
-    "is_green": false
-  },
-  "SSYS": {
-    "date": "2026-10-12",
-    "aligned": false,
-    "priority": 2,
-    "close": 7.66,
-    "change_pct": -4.01,
-    "is_green": false
-  },
-  "TSM": {
-    "date": "2026-10-12",
-    "aligned": true,
-    "priority": 0,
-    "close": 444.35,
-    "change_pct": -1.98,
-    "is_green": false
-  },
-  "INFQ": {
-    "date": "2026-10-12",
+    "date": "2026-10-15",
     "aligned": false,
     "priority": 1,
-    "close": 10.38,
-    "change_pct": -5.98,
-    "is_green": false
+    "close": 35.09,
+    "change_pct": -1.93,
+    "is_green": true
+  },
+  "SSYS": {
+    "date": "2026-10-15",
+    "aligned": false,
+    "priority": 2,
+    "close": 7.12,
+    "change_pct": 1.14,
+    "is_green": true
+  },
+  "TSM": {
+    "date": "2026-10-15",
+    "aligned": false,
+    "priority": 1,
+    "close": 422.25,
+    "change_pct": -1.8,
+    "is_green": true
+  },
+  "INFQ": {
+    "date": "2026-10-15",
+    "aligned": false,
+    "priority": 1,
+    "close": 9.48,
+    "change_pct": 4.06,
+    "is_green": true
   }
 }
